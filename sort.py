@@ -48,7 +48,7 @@ with open(os.path.join(output_folder, 'intersection_funds.csv'), 'w') as file:
     for fund_info in intersection_funds_data:
         full_fund_name, fund, average_percentage, percentages = fund_info
         # Format the percentages to two decimal places
-        percentages_str = ','.join(f"{p:.2f}" for p in percentages)
+        percentages_str = ','.join(f"{p:.3f}" for p in percentages)
         file.write(f"{full_fund_name},{fund},{average_percentage},{percentages_str}\n")
 
 # Write the top funds for each week to separate CSV files with their full names
@@ -56,7 +56,7 @@ for i in range(1, second_period_weeks + 1):
     top_n = top_n_first_period if i <= first_period_weeks else top_n_second_period
     top_funds_with_percentage = df.nlargest(top_n, f'{i} Weeks')[['Full Fund Name', 'Fund', f'{i} Weeks']]
     # Format the percentages to two decimal places
-    top_funds_with_percentage[f'{i} Weeks'] = top_funds_with_percentage[f'{i} Weeks'].apply(lambda x: f"{x:.2f}")
+    top_funds_with_percentage[f'{i} Weeks'] = top_funds_with_percentage[f'{i} Weeks'].apply(lambda x: f"{x:.3f}")
     output_path = os.path.join(output_folder, f'top_{top_n}_week_{i}.csv')
     top_funds_with_percentage.to_csv(output_path, index=False)
 
