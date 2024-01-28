@@ -10,10 +10,10 @@ if not os.path.exists(output_folder):
 df = pd.read_csv('all_fund_profit_percentages.csv')
 
 # Define the number of top funds for each period
-top_n_first_period = 100
-top_n_second_period = 50
-first_period_weeks = 6  # Weeks 1 to 6
-second_period_weeks = 24  # Weeks 7 to 14
+top_n_first_period = 140
+top_n_second_period = 80
+first_period_weeks = 8  # Weeks 1 to 6
+second_period_weeks = 18  # Weeks 7 to 14
 
 # Get the top funds for weeks 1 to 6 (top 100) and weeks 7 to 14 (top 50)
 top_funds = [set(df.nlargest(top_n_first_period if i <= first_period_weeks else top_n_second_period, f'{i} Weeks')['Fund']) for i in range(1, second_period_weeks + 1)]
@@ -62,3 +62,24 @@ for i in range(1, second_period_weeks + 1):
 
 print(f"Intersection funds sorted by average percentage have been written to {os.path.join(output_folder, 'intersection_funds.csv')}")
 print(f"Top funds for weeks 1 to {second_period_weeks} with full names have been written to the {output_folder} folder.")
+
+
+# Keywords to exclude from the fund titles
+exclude_keywords = ['TEKNOLOJİ', 'TECHNOLOGY', 'BLOCKCHAIN', 'METAVERSE', 'TECHNOLOGIES', 'TEKNOLOGY']
+
+# Read the intersection funds CSV file
+intersection_funds_df = pd.read_csv(os.path.join(output_folder, 'intersection_funds.csv'))
+
+# Filter out funds that contain any of the exclude keywords in their 'Full Fund Name'
+filtered_funds_df = intersection_funds_df[~intersection_funds_df['Full Fund Name'].str.contains('|'.join(exclude_keywords), case=False)]
+
+# Write the filtered funds to a new CSV file
+filtered_output_path = os.path.join(output_folder, 'filtered_intersection_funds.csv')
+filtered_funds_df.to_csv(filtered_output_path, index=False)
+
+# Update the original intersection funds CSV file by removing the filtered out funds
+intersection_funds_df.drop(filtered_funds_df.index, inplace=True)
+intersection_funds_df.to_csv(os.path.join(output_folder, 'intersection_funds.csv'), index=False)
+
+print(f"Filtered funds have been written to {filtered_output_path}")
+print(f"Updated intersection funds have been written to {os.path.join(output_folder, 'intersection_funds.csv')}")
