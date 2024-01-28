@@ -1,50 +1,64 @@
-from tefas import Crawler
-from datetime import datetime, timedelta
 import pandas as pd
+import os
 
+# Ensure the week_percentage_csv directory exists
+output_folder = 'week_percentage_csv'
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
+# Load the data
 df = pd.read_csv('all_fund_profit_percentages.csv')
 
-sort_count = 50
-
-# Get the top funds for each time period
-def get_top_funds(df, period, top_n):
-    return set(df.nlargest(top_n, period)['Fund'])
-
-# Define variables for the number of top funds and week ranges
+# Define the number of top funds for each period
 top_n_first_period = 100
 top_n_second_period = 50
 first_period_weeks = 6  # Weeks 1 to 6
-second_period_weeks = 12  # Weeks 7 to 12
+second_period_weeks = 14  # Weeks 7 to 14
 
-# Get the top funds for weeks 1 to 6 (top 100) and weeks 7 to 12 (top 50)
-top_funds = [get_top_funds(df, f'{i} Weeks', top_n_first_period if i <= first_period_weeks else top_n_second_period) for i in range(1, second_period_weeks + 1)]
+# Get the top funds for weeks 1 to 6 (top 100) and weeks 7 to 14 (top 50)
+top_funds = [set(df.nlargest(top_n_first_period if i <= first_period_weeks else top_n_second_period, f'{i} Weeks')['Fund']) for i in range(1, second_period_weeks + 1)]
 
-# Create a dictionary to hold the fund percentages for each week
-fund_percentages = {week: df.nlargest(top_n_first_period if week <= first_period_weeks else top_n_second_period, f'{week} Weeks').set_index('Fund')[f'{week} Weeks'] for week in range(1, second_period_weeks + 1)}
+# Find the intersection of top funds from any two of the weeks 1 to 6 with all weeks from 7 to 14
+intersection_of_top_funds_first_period = set.union(*[set.intersection(top_funds[i], top_funds[j]) for i in range(first_period_weeks) for j in range(i+1, first_period_weeks)])
+intersection_funds = set.intersection(intersection_of_top_funds_first_period, *top_funds[first_period_weeks:])
 
-# Find the intersection of top funds from any two of the weeks 1 to 6 with all weeks from 7 to 12
-any_two_of_first_six_weeks = set.union(*[set.intersection(top_funds[i], top_funds[j]) for i in range(first_period_weeks) for j in range(i+1, first_period_weeks)])
-intersection_funds = set.intersection(any_two_of_first_six_weeks, *top_funds[first_period_weeks:])
+# Define the minimum percentage threshold and the number of recent weeks to check
+min_percentage_threshold = 0.0  # Can be a negative number or a float like 1.5
+lookback_weeks = 3  # Number of recent weeks to evaluate
 
-# Write the intersection funds and their percentages for weeks 1 to 12 to a file
-with open('intersection_funds.txt', 'w') as file:
-    for fund in intersection_funds:
-        percentages = [fund_percentages[week].get(fund, 'N/A') for week in range(1, second_period_weeks + 1)]
-        percentages_str = ','.join(map(str, percentages))
-        file.write(f"{fund},{percentages_str}\n")
+# Calculate the average percentage and sort the funds
+intersection_funds_data = []
 
-print(f"Intersection funds and their percentages for weeks 1 to {second_period_weeks} have been written to intersection_funds.txt")
+for fund in intersection_funds:
+    fund_data = df[df['Fund'] == fund].iloc[0]
+    percentages = fund_data[[f'{i} Weeks' for i in range(1, second_period_weeks + 1)]].tolist()
+    # Check if the fund has percentages above the threshold in the last lookback_weeks
+    if all(x >= min_percentage_threshold for x in percentages[-lookback_weeks:]):
+        average_percentage = sum(percentages) / len(percentages)
+        # Format the average percentage to two decimal places
+        average_percentage = f"{average_percentage:.2f}"
+        intersection_funds_data.append((fund_data['Full Fund Name'], fund, average_percentage, percentages))
 
-# Get the top funds for each time period in descending order along with their percentages
-def get_top_funds_with_percentage(df, period, top_n):
-    sorted_funds = df.nlargest(top_n, period)[['Fund', period]]
-    return sorted_funds
+# Sort the list by average percentage in descending order
+intersection_funds_data.sort(key=lambda x: x[2], reverse=True)
 
-# Get top funds for weeks 1 to 12 and write to separate files with their percentages in descending order
-for i in range(1, 13):
-    top_funds_with_percentage = get_top_funds_with_percentage(df, f'{i} Weeks', sort_count)
-    with open(f'top_100_week_{i}.csv', 'w') as file:
-        for index, row in top_funds_with_percentage.iterrows():
-            file.write(f"{row['Fund']},{row[f'{i} Weeks']}\n")
+# Write the sorted intersection funds to a CSV file
+with open(os.path.join(output_folder, 'intersection_funds.csv'), 'w') as file:
+    file.write('Full Fund Name,Fund,Average Percentage,' + ','.join([f'{i} Weeks' for i in range(1, second_period_weeks + 1)]) + '\n')
+    for fund_info in intersection_funds_data:
+        full_fund_name, fund, average_percentage, percentages = fund_info
+        # Format the percentages to two decimal places
+        percentages_str = ','.join(f"{p:.2f}" for p in percentages)
+        file.write(f"{full_fund_name},{fund},{average_percentage},{percentages_str}\n")
 
-    print(f"Top 100 funds for week {i} with percentages have been written to top_100_week_{i}.csv in descending order")
+# Write the top funds for each week to separate CSV files with their full names
+for i in range(1, second_period_weeks + 1):
+    top_n = top_n_first_period if i <= first_period_weeks else top_n_second_period
+    top_funds_with_percentage = df.nlargest(top_n, f'{i} Weeks')[['Full Fund Name', 'Fund', f'{i} Weeks']]
+    # Format the percentages to two decimal places
+    top_funds_with_percentage[f'{i} Weeks'] = top_funds_with_percentage[f'{i} Weeks'].apply(lambda x: f"{x:.2f}")
+    output_path = os.path.join(output_folder, f'top_{top_n}_week_{i}.csv')
+    top_funds_with_percentage.to_csv(output_path, index=False)
+
+print(f"Intersection funds sorted by average percentage have been written to {os.path.join(output_folder, 'intersection_funds.csv')}")
+print(f"Top funds for weeks 1 to {second_period_weeks} with full names have been written to the {output_folder} folder.")
