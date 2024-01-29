@@ -10,10 +10,10 @@ if not os.path.exists(output_folder):
 df = pd.read_csv('all_fund_profit_percentages.csv')
 
 # Define the number of top funds for each period
-top_n_first_period = 140
-top_n_second_period = 80
+top_n_first_period = 160
+top_n_second_period = 100
 first_period_weeks = 8  # Weeks 1 to 6
-second_period_weeks = 18  # Weeks 7 to 14
+second_period_weeks = 24  # Weeks 7 to 14
 
 # Get the top funds for weeks 1 to 6 (top 100) and weeks 7 to 14 (top 50)
 top_funds = [set(df.nlargest(top_n_first_period if i <= first_period_weeks else top_n_second_period, f'{i} Weeks')['Fund']) for i in range(1, second_period_weeks + 1)]
@@ -26,7 +26,7 @@ intersection_funds = set.intersection(intersection_of_top_funds_first_period, *t
 min_percentage_threshold = 0.0  # Can be a negative number or a float like 1.5
 lookback_weeks = 3  # Number of recent weeks to evaluate
 
-# Calculate the average percentage and sort the funds
+# Collect the funds data without calculating the average percentage
 intersection_funds_data = []
 
 for fund in intersection_funds:
@@ -34,22 +34,16 @@ for fund in intersection_funds:
     percentages = fund_data[[f'{i} Weeks' for i in range(1, second_period_weeks + 1)]].tolist()
     # Check if the fund has percentages above the threshold in the last lookback_weeks
     if all(x >= min_percentage_threshold for x in percentages[-lookback_weeks:]):
-        average_percentage = sum(percentages) / len(percentages)
-        # Format the average percentage to three decimal places with trailing zeros if necessary
-        average_percentage = f"{average_percentage:.3f}"
-        intersection_funds_data.append((fund, fund_data['Full Fund Name'], average_percentage, percentages))
+        intersection_funds_data.append((fund, fund_data['Full Fund Name'], percentages))
 
-# Sort the list by average percentage in descending order
-intersection_funds_data.sort(key=lambda x: x[2], reverse=True)
-
-# Write the sorted intersection funds to a CSV file
+# Write the intersection funds to a CSV file without the Average Percentage
 with open(os.path.join(output_folder, 'intersection_funds.csv'), 'w') as file:
-    file.write('Fund,Full Fund Name,Average Percentage,' + ','.join([f'{i} Weeks' for i in range(1, second_period_weeks + 1)]) + '\n')
+    file.write('Fund,Full Fund Name,' + ','.join([f'{i} Weeks' for i in range(1, second_period_weeks + 1)]) + '\n')
     for fund_info in intersection_funds_data:
-        fund, full_fund_name, average_percentage, percentages = fund_info
+        fund, full_fund_name, percentages = fund_info
         # Format the percentages to three decimal places with trailing zeros if necessary
         percentages_str = ','.join(f"{p:.3f}" for p in percentages)
-        file.write(f"{fund},{full_fund_name},{average_percentage},{percentages_str}\n")
+        file.write(f"{fund},{full_fund_name},{percentages_str}\n")
 
 # Write the top funds for each week to separate CSV files with their full names
 for i in range(1, second_period_weeks + 1):
@@ -60,7 +54,7 @@ for i in range(1, second_period_weeks + 1):
     output_path = os.path.join(output_folder, f'top_{top_n}_week_{i}.csv')
     top_funds_with_percentage.to_csv(output_path, index=False)
 
-print(f"Intersection funds sorted by average percentage have been written to {os.path.join(output_folder, 'intersection_funds.csv')}")
+print(f"Intersection funds have been written to {os.path.join(output_folder, 'intersection_funds.csv')}")
 print(f"Top funds for weeks 1 to {second_period_weeks} with full names have been written to the {output_folder} folder.")
 
 
