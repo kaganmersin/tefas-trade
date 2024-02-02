@@ -81,3 +81,5 @@ intersection_funds_df.to_csv(os.path.join(output_folder, 'intersection_funds.csv
 
 print(f"Filtered funds have been written to {filtered_output_path}")
 print(f"Updated intersection funds have been written to {os.path.join(output_folder, 'intersection_funds.csv')}")
+
+
