@@ -10,10 +10,10 @@ if not os.path.exists(output_folder):
 df = pd.read_csv('all_fund_profit_percentages.csv')
 
 # Define the number of top funds for each period
-top_n_first_period = 160
-top_n_second_period = 100
-first_period_weeks = 8  # Weeks 1 to 6
-second_period_weeks = 24  # Weeks 7 to 14
+top_n_first_period = 70
+top_n_second_period = 30
+first_period_weeks = 3  # Weeks 1 to 6
+second_period_weeks = 6  # Weeks 7 to 14
 
 # Get the top funds for weeks 1 to 6 (top 100) and weeks 7 to 14 (top 50)
 top_funds = [set(df.nlargest(top_n_first_period if i <= first_period_weeks else top_n_second_period, f'{i} Weeks')['Fund']) for i in range(1, second_period_weeks + 1)]
@@ -25,6 +25,7 @@ intersection_funds = set.intersection(intersection_of_top_funds_first_period, *t
 # Define the minimum percentage threshold and the number of recent weeks to check
 min_percentage_threshold = 0.0  # Can be a negative number or a float like 1.5
 lookback_weeks = 3  # Number of recent weeks to evaluate
+max_weeks_below_threshold = 1
 
 # Collect the funds data without calculating the average percentage
 intersection_funds_data = []
@@ -33,8 +34,11 @@ for fund in intersection_funds:
     fund_data = df[df['Fund'] == fund].iloc[0]
     percentages = fund_data[[f'{i} Weeks' for i in range(1, second_period_weeks + 1)]].tolist()
     # Check if the fund has percentages above the threshold in the last lookback_weeks
-    if all(x >= min_percentage_threshold for x in percentages[-lookback_weeks:]):
+    # New check to count weeks below the threshold
+    weeks_below_threshold = sum(x < min_percentage_threshold for x in percentages[-lookback_weeks:])
+    if weeks_below_threshold <= max_weeks_below_threshold:
         intersection_funds_data.append((fund, fund_data['Full Fund Name'], percentages))
+
 
 # Write the intersection funds to a CSV file without the Average Percentage
 with open(os.path.join(output_folder, 'intersection_funds.csv'), 'w') as file:
