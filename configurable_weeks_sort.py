@@ -9,13 +9,12 @@ if not os.path.exists(output_folder):
 # Load the data
 df = pd.read_csv('all_fund_profit_percentages.csv')
 
-# Configurable periods and top N funds for each period
-periods = [(2, 50), (4, 50), (6, 50), (8, 50)]  # (weeks, top_n) pairs
-# For example, (3, 50) means the top 50 funds over the last 3 weeks
+# Configurable periods
+periods = [(1, 40), (2, 40), (4, 40), (6, 40), (8, 40), (10, 40), (12, 40), (14, 40), (16, 40), (18, 40), (20, 40), (22, 40), (24, 40)]
 
 # Function to get top funds for a given period
 def get_top_funds_for_period(df, weeks, top_n):
-    latest_week = df.columns[-1].split()[0]  # Assumes the last column is the latest week
+    latest_week = df.columns[-1].split()[0]
     relevant_weeks = [f"{int(latest_week) - i} Weeks" for i in range(weeks)]
     avg_weekly_performance = df[relevant_weeks].mean(axis=1)
     top_funds = avg_weekly_performance.nlargest(top_n).index
@@ -27,11 +26,24 @@ top_funds_sets = [get_top_funds_for_period(df, weeks, top_n) for weeks, top_n in
 # Find the intersection of top funds across all specified periods
 intersection_funds = set.intersection(*top_funds_sets)
 
-# Collecting the funds data
-intersection_funds_data = df[df['Fund'].isin(intersection_funds)]
+# Filter the DataFrame to only include these top funds
+df = df[df['Fund'].isin(intersection_funds)]
 
-# Writing the intersection funds data to a CSV file
-intersection_output_path = os.path.join(output_folder, 'intersection_funds_configurable_periods.csv')
-intersection_funds_data.to_csv(intersection_output_path, index=False)
+# Exclude funds based on keywords in 'Full Fund Name'
+exclude_keywords = ['TEKNOLOJİ', 'TECHNOLOGY', 'BLOCKCHAIN', 'METAVERSE', 'TECHNOLOGIES', 'TEKNOLOGY']
+excluded_funds = df[df['Full Fund Name'].apply(lambda x: any(keyword in str(x).upper() for keyword in exclude_keywords))]
+included_funds = df[~df['Fund'].isin(excluded_funds['Fund'])]
 
-print(f"Intersection funds for configurable periods have been written to {intersection_output_path}")
+# Creating a single DataFrame for both included and excluded funds
+combined_df = pd.concat([
+    pd.DataFrame({'Category': ['Non-filtered Funds'], 'Fund': [''], 'Full Fund Name': ['']}), 
+    included_funds,
+    pd.DataFrame({'Category': ['Filtered Funds'], 'Fund': [''], 'Full Fund Name': ['']}), 
+    excluded_funds
+], ignore_index=True)
+
+# Writing the combined funds data to a CSV file
+combined_output_path = os.path.join(output_folder, 'combined_funds.csv')
+combined_df.to_csv(combined_output_path, index=False)
+
+print(f"Combined funds have been written to {combined_output_path}")

@@ -10,8 +10,8 @@ with open('fund_names.txt', 'r') as file:
     fund_names = file.read().splitlines()
 
 # Define the dates for fetching the price information
-start_date_price_date = "2024-02-02"  # Corrected date for fetching start date price
-end_date_price_date = "2024-02-02"    # Date for fetching end date price
+start_date_price_date = "2023-12-22"  # Corrected date for fetching start date price
+end_date_price_date = "2023-12-22"    # Date for fetching end date price
 
 # Open a CSV file to write the fund data as it is processed
 with open('fund_performance.csv', 'w', newline='') as csvfile:
