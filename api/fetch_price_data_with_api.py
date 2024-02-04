@@ -61,16 +61,19 @@ today = datetime.now()
 if today.weekday() > 4:
     today = get_previous_friday(today)
 
-# Read fund names from fund_names.txt
-with open('fund_names.txt', 'r') as file:
-    all_funds = [line.strip() for line in file]
-
-number_of_weeks = 26
-week_dates = [today - timedelta(weeks=week) for week in range(1, number_of_weeks + 1)]
-week_dates_str = [date.strftime('%Y-%m-%d') for date in week_dates]
-
 # Directory of the script
 script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Path for the fund names file
+fund_names_path = os.path.join(script_dir, 'fund_names.txt')
+
+# Read fund names from fund_names.txt
+with open(fund_names_path, 'r') as file:
+    all_funds = [line.strip() for line in file]
+
+number_of_weeks = 74
+week_dates = [today - timedelta(weeks=week) for week in range(1, number_of_weeks + 1)]
+week_dates_str = [date.strftime('%Y-%m-%d') for date in week_dates]
 
 # Paths for the CSV files
 profit_csv_path = os.path.join(script_dir, 'all_fund_profit_percentages_api.csv')

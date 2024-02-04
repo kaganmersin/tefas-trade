@@ -38,18 +38,18 @@ def main():
 
     fund_returns = {}
 
-    for week in range(1, 27):
+    for week in range(1, 56):
         start_date = today - timedelta(days=week * 7)
         df = fetch_fund_returns(start_date, today)
 
         for index, row in df.iterrows():
             fund_code = row['FONKODU']
             if fund_code not in fund_returns:
-                fund_returns[fund_code] = {'name': row['FONUNVAN'], 'returns': [''] * 26}
+                fund_returns[fund_code] = {'name': row['FONUNVAN'], 'returns': [''] * 55}
             fund_returns[fund_code]['returns'][week - 1] = str(row['GETIRIORANI'])
 
     with open(csv_file_path, 'w') as file:
-        file.write('Fund Code,Fund Name,' + ','.join([f'{i} Week Return' for i in range(1, 27)]) + '\n')
+        file.write('Fund Code,Fund Name,' + ','.join([f'{i} Week Return' for i in range(1, 56)]) + '\n')
         for fund_code, data in fund_returns.items():
             file.write(f"{fund_code},{data['name']},{','.join(data['returns'])}\n")
 
