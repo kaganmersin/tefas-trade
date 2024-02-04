@@ -2,11 +2,15 @@ import pandas as pd
 import os
 import glob
 
-# Get all CSV files in the current directory and subdirectories
-csv_files = glob.glob('**/*.csv', recursive=True)
+# Directory of the script
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Get all CSV files in the script's directory
+csv_files = glob.glob(os.path.join(script_dir, '*.csv'))
 
 # Create a Pandas Excel writer using XlsxWriter as the engine
-with pd.ExcelWriter('output.xlsx', engine='xlsxwriter') as writer:
+output_excel_path = os.path.join(script_dir, 'output.xlsx')
+with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
     for csv_file in csv_files:
         # Skip files that start with 'top'
         if os.path.basename(csv_file).startswith('top'):
@@ -22,6 +26,4 @@ with pd.ExcelWriter('output.xlsx', engine='xlsxwriter') as writer:
         # Write the DataFrame to a specific sheet in the Excel file
         df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-# No need to call writer.save()
-
-print("All CSV files have been written to output.xlsx.")
+print(f"All CSV files have been written to {output_excel_path}.")

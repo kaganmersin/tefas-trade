@@ -1,13 +1,12 @@
 import pandas as pd
 import os
 
-# Ensure the output directory exists
-output_folder = 'week_percentage_csv'
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+# Directory of the script
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Load the data
-df = pd.read_csv('all_fund_profit_percentages.csv')
+df_path = os.path.join(script_dir, 'all_fund_profit_percentages_api.csv')
+df = pd.read_csv(df_path)
 
 # Configurable periods
 periods = [(1, 40), (2, 40), (4, 40), (6, 40), (8, 40), (10, 40), (12, 40), (14, 40), (16, 40), (18, 40), (20, 40), (22, 40), (24, 40)]
@@ -42,8 +41,8 @@ combined_df = pd.concat([
     excluded_funds
 ], ignore_index=True)
 
-# Writing the combined funds data to a CSV file
-combined_output_path = os.path.join(output_folder, 'combined_funds.csv')
+# Writing the combined funds data to a CSV file in the script's directory
+combined_output_path = os.path.join(script_dir, 'configurable_weeks_sort.csv')
 combined_df.to_csv(combined_output_path, index=False)
 
 print(f"Combined funds have been written to {combined_output_path}")
