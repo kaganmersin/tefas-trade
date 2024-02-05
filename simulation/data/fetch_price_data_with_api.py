@@ -42,6 +42,17 @@ def get_single_day_price(date, fund_code):
     else:
         return None, None
 
+# Function to validate and format price
+def format_price(price):
+    if price is None or price == '' or price == '0.000':
+        return 'NaN'
+    try:
+        # Validate that the price is a float
+        float_price = float(price)
+        return f"{float_price:.3f}"
+    except ValueError:
+        return 'NaN'
+
 # Main execution starts here
 today = datetime.now()
 if today.weekday() > 4:
@@ -60,6 +71,16 @@ with open(fund_names_path, 'r') as file:
 # Define the ranges for each file
 ranges = [(0, 72), (13, 72), (25, 72), (37, 72), (49, 72), (61, 72)]
 
+# Delete existing files at the start of each script execution
+for start_week, end_week in ranges:
+    if start_week == 0 and end_week == 72:
+        file_name = 'all_fund_prices-0-72.csv'
+    else:
+        file_name = f'all_fund_prices-{start_week}-{end_week}.csv'
+    csv_path = os.path.join(script_dir, file_name)
+    if os.path.exists(csv_path):
+        os.remove(csv_path)
+
 # Process each fund
 for fund in all_funds:
     try:
@@ -72,18 +93,8 @@ for fund in all_funds:
             if week == 0 and name:
                 full_fund_name = name
 
-            if price is not None:
-                # Ensure consistent number formats
-                price = price.replace(',', '.')
-                try:
-                    # Validate that the price is a float
-                    price = float(price)
-                except ValueError:
-                    print(f"Invalid price for {fund} on {date}: {price}")
-                    price = 'NaN'
-                weekly_prices.append(price)
-            else:
-                weekly_prices.append('NaN')  # Standardize missing values
+            formatted_price = format_price(price)
+            weekly_prices.append(formatted_price)
 
         # Write to each file
         for start_week, end_week in ranges:
@@ -102,7 +113,7 @@ for fund in all_funds:
                     file.write(header)
 
                 # Write data
-                file.write(f"{fund},{full_fund_name}," + ','.join(map(str, weekly_prices[start_week:end_week+1])) + '\n')
+                file.write(f"{fund},{full_fund_name}," + ','.join(weekly_prices[start_week:end_week+1]) + '\n')
                 file.flush()
     except Exception as e:
         print(f"Error processing {fund}: {e}")

@@ -1,0 +1,67 @@
+add below topics to the existing prompt:
+
+
+
+
+add above topics to the existing prompt and don't remove any logic fromt the promt
+
+Existing promt: 
+
+"Day Zero Portfolio Management: 2023-02-24:
+
+I'm initiating the trade day simulation with the upload of 'all_fund_prices-49-72.csv' for Day Zero, corresponding to the date 2023-02-24. We begin managing a portfolio of 8-14 diversified funds with an initial capital of 1 million Turkish Lira, focusing on performance, volatility, sector diversity, and macro-economic considerations.
+
+Process for Day Zero:
+
+Data Analysis: Analyze 'all_fund_prices-49-72.csv', focusing on funds with at least 12 weeks of history, disregarding those with significant missing data.
+Fund Selection & Diversification Strategy: Choose funds based on performance and volatility, ensuring diversification. Aim to allocate about 70% of the portfolio to the most efficient funds in dominant sectors, diversifying the remaining 30% into different fund types like local stocks and gold.
+Portfolio Formation: Form a portfolio of 8-14 funds based on the analysis and diversification strategy.
+Performance Tracking & Reporting: Provide a detailed report of selected funds in the following format:
+"Day Zero (2023-02-24):"
+"Fund code: AOY, Fund name: ..., buy price: XXX, Current Price: XXX, Profit/Loss percentage: XXX, decision: hold/sell"
+"Fund code: AFO, Fund name: ..., buy price: YYY, decision: buy"
+Adaptability to Market Changes: Stay flexible and ready to adjust the strategy based on new data and macro-economic changes.
+This approach will set a solid foundation for managing the portfolio through subsequent trade days."
+
+
+
+--------------------------------------------------------------------------------
+
+
+"First Trade Day Portfolio Management:  2023-05-19:
+
+I've uploaded 'all_fund_prices-37-72.csv' for the First trade day analysis, dated 2023-05-19. We continue to manage the portfolio with an initial capital of 1 million Turkish Lira, focusing on performance, volatility, sector diversity, and macro-economic trends.
+
+Process for First Trade Day:
+
+Data Analysis: Analyze the new data set, focusing on funds with adequate historical data.
+Fund Selection & Diversification Strategy: Select funds based on performance and volatility. Maintain the 70/30 diversification strategy, adapting the portfolio to include efficient funds and diversified investments.
+Portfolio Adjustment: Adjust the portfolio based on the analysis, ensuring it comprises 8-14 funds.
+Performance Tracking & Reporting: Update the completion report for each fund, including buy/sell/hold decisions and profit/loss percentages.
+Adaptability to Market Changes: Continuously reassess the strategy in light of new data and macro-economic developments.
+
+
+
+"Second Trade Day Portfolio Management:  2023-08-11:
+
+I've uploaded 'all_fund_prices-25-72.csv' for the Second trade day analysis, dated [Date]. We continue to manage the portfolio with an initial capital of 1 million Turkish Lira, focusing on performance, volatility, sector diversity, and macro-economic trends.
+
+Process for Second Trade Day:
+
+Data Analysis: Analyze the new data set, focusing on funds with adequate historical data.
+Fund Selection & Diversification Strategy: Select funds based on performance and volatility. Maintain the 70/30 diversification strategy, adapting the portfolio to include efficient funds and diversified investments.
+Portfolio Adjustment: Adjust the portfolio based on the analysis, ensuring it comprises 8-14 funds.
+Performance Tracking & Reporting: Update the completion report for each fund, including buy/sell/hold decisions and profit/loss percentages.
+Adaptability to Market Changes: Continuously reassess the strategy in light of new data and macro-economic developments.
+
+
+
+
+Day Zero: 2022-12-02, consider 'all_fund_prices-61-72.csv'
+First Trade Day: 2023-02-24, consider 'all_fund_prices-49-72.csv'
+Second Trade Day: 2023-05-19, consider 'all_fund_prices-37-72.csv'
+Third Trade Day: 2023-08-11, consider 'all_fund_prices-25-72.csv'
+Fourth Trade Day: 2023-11-03, consider 'all_fund_prices-13-72.csv'
+Fifth Trade Day: 2024-02-02, consider 'all_fund_prices-0-72.csv'
+In Each Trade Day:
+

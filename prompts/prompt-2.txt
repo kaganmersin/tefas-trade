@@ -1,0 +1,63 @@
+addiitonal to the below one also add below topics: ;
+
+there can be some funds which their prices has all of or too many NaN or 0.0. It means that this fund does not exist on that times and since this csv are cumulative it can be seems like to many NaN or 0.0 what you can do is that ignore on this particular range if funds has so many NaN or/and 0.0. Consider funds  on each trade day if fund has at least 24 weeks history
+
+ please don't remove and change any thing from prompt just add above idea
+prompt I use:
+
+
+Sure, I'll include the additional guidance regarding the handling of funds with extensive missing data or non-existent entries in the CSV files. Here's the updated prompt with your latest addition:
+
+I have uploaded a series of CSV files with weekly fund prices over different periods. It's important to address missing data points by disregarding funds with incomplete data. However, if the missing dates are not significantly impacting the overall data for good funds, these funds should not be ignored. Additionally, please use financial metrics like standard deviation to assess volatility and risk. Also, if a fund has too many NaN or 0.0 values, indicating non-existence during a particular period, such funds should be ignored in that specific range. Only consider funds for each trade day if a fund has at least 24 weeks of history. Here's the structured process for the simulation:
+
+Trade Days and Data to Consider:
+
+Day Zero: 2022-12-02, consider 'all_fund_prices-61-72.csv'
+First Trade Day: 2023-02-24, consider 'all_fund_prices-49-72.csv'
+Second Trade Day: 2023-05-19, consider 'all_fund_prices-37-72.csv'
+Third Trade Day: 2023-08-11, consider 'all_fund_prices-25-72.csv'
+Fourth Trade Day: 2023-11-03, consider 'all_fund_prices-13-72.csv'
+Fifth Trade Day: 2024-02-02, consider 'all_fund_prices-0-72.csv'
+In Each Trade Day:
+
+Maintain a portfolio of 8-14 funds.
+Ensure diversified selections across different sectors.
+Initial Analysis with 'all_fund_prices-61-72.csv':
+
+Analyze 'all_fund_prices-61-72.csv', focusing on the last 12 weeks.
+Exclude funds with missing prices, but consider good funds if their missing data isn't significant, and use standard deviation to evaluate volatility and risk.
+Select 5-8 top-performing and about 4 diversified funds from different sectors.
+Provide trading recommendations, potential profit or loss estimations, and allocate the initial 1 million Turkish Lira.
+First Trade Day with 'all_fund_prices-49-72.csv':
+
+Move to 'all_fund_prices-49-72.csv' for a broader analysis, including earlier weeks.
+Continue to exclude funds with missing data but reconsider good funds if the missing data isn't significant, and reassess volatility using standard deviation.
+Update trading recommendations based on this data, and recalculate profit or loss.
+Report profits and losses for each fund and the cumulative portfolio profit.
+Pause for Review: After each trade day analysis, I will provide a completion report for review. At this point, please pause to allow me to review the analysis and decisions. If necessary, I will provide further instructions or request adjustments in the chat.
+
+Subsequent Trade Days with Other Files:
+
+For each trade day, analyze the specific file (e.g., 'all_fund_prices-37-72.csv').
+Apply the same criteria for excluding funds, but don't disregard good funds if missing data isn't significant, and assess volatility.
+Update fund selections, trading decisions, and capital allocations.
+Calculate and report individual and cumulative profits, adjusting the portfolio as needed.
+Final Comprehensive Analysis with 'all_fund_prices-0-72.csv':
+
+Conduct a final review using 'all_fund_prices-0-72.csv'.
+Exclude funds with missing data but keep good funds with minor missing data, and reassess using standard deviation for volatility.
+Provide final recommendations on fund selection and portfolio allocation.
+Evaluate overall performance and profitability.
+Completion Reports in a Detailed Narrative Format:
+
+For each trade day, provide a completion report in a detailed narrative format, including:
+"XXth Trade Day (Date):"
+"Fund code: AOY, Fund name: AK PORTFÖY ALTERNATİF ENERJİ YABANCI HİSSE SENEDİ FONU, buy price: XXX, Current Price: XXX, Profit/Loss percentage: XXX, decision: hold/sell"
+"Fund code: AFO, Fund name: AK PORTFÖY ALTIN FONU, buy price: YYY, decision: buy"
+This format will offer a comprehensive view of each fund's performance and decisions for every trade day.
+General Strategy:
+
+Carefully reassess the current holdings, wisely reallocate the capital from sold funds, and stay open to incorporating new funds based on a detailed analysis of the existing data.
+Remain flexible and ready to update the strategy as soon as newer data becomes available.
+This structured approach will ensure a thorough and adaptable management of the portfolio across all designated trade days, with clear and detailed reports for each stage of the process.
+
