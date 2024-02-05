@@ -1,0 +1,32 @@
+I have 76 files and this files has fund prices on weekly basis and each price belongs to specific fund on specficic date 
+between two date there are 7 days since it's weekly basis
+I need to calculate of the profit percentages on each day 
+
+Here is pattern;
+
+sample format  of the all_fund_prices-61-72.csv 
+Fund,Full Fund Name,2022-12-05,2022-11-28,2022-11-21,2022-11-14,2022-11-07,2022-10-31,2022-10-24,2022-10-17,2022-10-10,2022-10-03,2022-09-26,2022-09-19
+AOY,AK PORTFÖY ALTERNATİF ENERJİ YABANCI HİSSE SENEDİ FONU,0.188,0.188,0.187,0.183,0.163,0.165,0.151,0.150,0.158,0.161,0.164,0.182
+AFO,AK PORTFÖY ALTIN FONU,0.240,0.234,0.234,0.232,0.219,0.222,0.217,0.221,0.228,0.222,0.218,0.217
+
+assume 2022-12-05 is today for this file
+and calculate First week percentage calculation is is like  ( 2022-12-05 price / 2022-11-28 price ) -1 * 100 = %x
+and calculate Second week percentage calculation is is like  ( 2022-12-05 price / 2022-11-21 price ) -1 * 100 = %x
+...
+
+If any of the fund today price is NaN don't calculate anything for this fund and make them all percentages are NaN
+If any of the fund week price is NaN make this particular week percentage is NaN and try to calculate another percentages for same fund
+
+Here is the pattern I want to have in all_fund_percentages-61-72.csv 
+Fund,Full Fund Name,1 Weeks,2 Weeks,3 Weeks,4 Weeks,5 Weeks,6 Weeks,7 Weeks,8 Weeks,9 Weeks,10 Weeks,11 Weeks,12 Weeks,13 Weeks,14 Weeks,15 Weeks,16 Weeks,17 Weeks,18 Weeks,19 Weeks,20 Weeks,21 Weeks,22 Weeks,23 Weeks,24 Weeks,25 Weeks,26 Weeks,27 Weeks,28 Weeks,29 Weeks,30 Weeks,31 Weeks,32 Weeks,33 Weeks,34 Weeks,35 Weeks,36 Weeks,37 Weeks,38 Weeks,39 Weeks,40 Weeks,41 Weeks,42 Weeks,43 Weeks,44 Weeks,45 Weeks,46 Weeks,47 Weeks,48 Weeks,49 Weeks,50 Weeks,51 Weeks,52 Weeks,53 Weeks,54 Weeks,55 Weeks,56 Weeks,57 Weeks,58 Weeks,59 Weeks,60 Weeks,61 Weeks,62 Weeks,63 Weeks,64 Weeks,65 Weeks,66 Weeks,67 Weeks,68 Weeks,69 Weeks,70 Weeks,71 Weeks,72 Weeks,73 Weeks,74 Weeks
+
+
+files: 
+all_fund_prices-0-72.csv (from today to 72 weeks ago)
+all_fund_prices-13-72.csv  (from 13 weeks ago to 72 weeks ago)
+all_fund_prices-25-72.csv (from 13 weeks ago to 72 weeks ago)
+all_fund_prices-37-72.csv (from 37 weeks ago to 72 weeks ago)
+all_fund_prices-49-72.csv (from 49 weeks ago to 72 weeks ago)
+all_fund_prices-61-72.csv (from 61 weeks ago to 72 weeks ago)
+
+give me the full python script for that

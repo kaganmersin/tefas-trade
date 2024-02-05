@@ -5,12 +5,15 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Load the data
+# df_path = os.path.join(script_dir, 'all_fund_percentages-0-72.csv')
 df_path = os.path.join(script_dir, 'all_fund_profit_percentages_api.csv')
 df = pd.read_csv(df_path)
 
-# Configurable periods
-periods = [(1, 40), (2, 40), (4, 40), (6, 40), (8, 40), (10, 40), (12, 40), (14, 40), (16, 40), (18, 40), (20, 40), (22, 40), (24, 40)]
 
+
+# Configurable periods
+# periods = [(1, 30), (2, 30), (4, 30), (6, 30), (8, 30), (10, 30), (12, 30), (14, 30), (16, 30), (18, 30), (20, 30), (22, 30), (24, 30)]
+periods = [(1, 40), (2, 30), (4, 30), (6, 30), (8, 25), (10, 24), (12, 23), (14, 22), (16, 21)]
 # Function to get top funds for a given period
 def get_top_funds_for_period(df, weeks, top_n):
     latest_week = df.columns[-1].split()[0]
