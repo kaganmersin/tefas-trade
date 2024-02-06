@@ -81,12 +81,14 @@ price_csv_path = os.path.join(script_dir, 'all_fund_prices_api.csv')
 
 # Open files for writing
 with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as price_file:
+    # Modify the header for the price CSV file to include today's date
+    today_str = today.strftime('%Y-%m-%d')
+    price_header = 'Fund,Full Fund Name,Today (' + today_str + '),' + ','.join([f'{i} Weeks ({date})' for i, date in enumerate(week_dates_str, start=1)]) + '\n'
+    price_file.write(price_header)
+
     # Write headers
     profit_header = 'Fund,Full Fund Name,' + ','.join([f'{i} Weeks' for i in range(1, number_of_weeks + 1)]) + '\n'
     profit_file.write(profit_header)
-
-    price_header = 'Fund,Full Fund Name,' + ','.join([f'{i} Weeks ({date})' for i, date in enumerate(week_dates_str, start=1)]) + '\n'
-    price_file.write(price_header)
 
     # Process each fund
     for fund in all_funds:
@@ -95,6 +97,9 @@ with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as pri
             weekly_profits = []
             weekly_prices = []
             full_fund_name = ''
+            # Fetch today's (or the most recent Friday's) price
+            today_price = get_recent_price(fund)
+
             for week in range(1, number_of_weeks + 1):
                 date = today - timedelta(weeks=week)
                 start_price, name = get_profit_info(date, fund)
@@ -102,10 +107,9 @@ with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as pri
                     full_fund_name = name
 
                 if start_price is not None:
-                    end_price = get_recent_price(fund)
                     weekly_prices.append(start_price)
-                    if end_price is not None and float(start_price) != 0:
-                        profit_percentage = ((float(end_price) - float(start_price)) / float(start_price)) * 100
+                    if today_price is not None and float(start_price) != 0:
+                        profit_percentage = ((float(today_price) - float(start_price)) / float(start_price)) * 100
                         profit_percentage = f"{profit_percentage:.3f}"
                         weekly_profits.append(profit_percentage)
                     else:
@@ -114,9 +118,9 @@ with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as pri
                     weekly_profits.append('None')
                     weekly_prices.append('None')
 
-            # Write to files
+            # Write to files with today's price included
             profit_file.write(f"{fund},{full_fund_name}," + ','.join(map(lambda x: str(x) if x != 'None' else 'None', weekly_profits)) + '\n')
-            price_file.write(f"{fund},{full_fund_name}," + ','.join(map(lambda x: str(x) if x != 'None' else 'None', weekly_prices)) + '\n')
+            price_file.write(f"{fund},{full_fund_name},{today_price if today_price is not None else 'None'}," + ','.join(map(lambda x: str(x) if x != 'None' else 'None', weekly_prices)) + '\n')
             profit_file.flush()
             price_file.flush()
         except Exception as e:
