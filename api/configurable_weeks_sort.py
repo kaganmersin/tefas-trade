@@ -13,7 +13,7 @@ df = pd.read_csv(df_path)
 
 # Configurable periods
 # periods = [(1, 30), (2, 30), (4, 30), (6, 30), (8, 30), (10, 30), (12, 30), (14, 30), (16, 30), (18, 30), (20, 30), (22, 30), (24, 30)]
-periods = [(4, 40), (8, 30), (14, 25), (22, 15), (32, 15)]
+periods = [(1, 35), (2, 35), (3, 35), (5, 35), (8, 30), (12, 30),(18, 28),(26, 28),(36, 28),(48, 25),(53, 25)]
 # Function to get top funds for a given period
 def get_top_funds_for_period(df, weeks, top_n):
     latest_week = df.columns[-1].split()[0]
