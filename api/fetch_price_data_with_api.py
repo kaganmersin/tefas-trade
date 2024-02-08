@@ -47,10 +47,10 @@ def get_profit_info(date, fund_code):
     price, full_fund_name = get_single_day_price(date, fund_code)
     return price, full_fund_name
 
-# Function to get the most recent price of a fund
-def get_recent_price(fund_code):
+# Modified function to get the most recent price based on a base date
+def get_recent_price_from_date(fund_code, base_date):
     for days_back in range(3):
-        date_to_check = today - timedelta(days=days_back)
+        date_to_check = base_date - timedelta(days=days_back)
         end_price, _ = get_single_day_price(date_to_check, fund_code)
         if end_price is not None:
             return end_price
@@ -98,13 +98,17 @@ with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as pri
             weekly_prices = []
             full_fund_name = ''
             # Fetch today's (or the most recent Friday's) price
-            today_price = get_recent_price(fund)
+            today_price = get_recent_price_from_date(fund, today)
 
             for week in range(1, number_of_weeks + 1):
                 date = today - timedelta(weeks=week)
                 start_price, name = get_profit_info(date, fund)
                 if week == 1 and name:
                     full_fund_name = name
+
+                if start_price is None:
+                    # If price is not available for the specific week, try getting recent price from that date
+                    start_price = get_recent_price_from_date(fund, date)
 
                 if start_price is not None:
                     weekly_prices.append(start_price)
