@@ -57,7 +57,7 @@ def get_recent_price(fund_code):
     return None
 
 # Main execution starts here
-today = datetime.now()
+today = datetime.now() - timedelta(days=1)
 if today.weekday() > 4:
     today = get_previous_friday(today)
 
@@ -83,7 +83,7 @@ price_csv_path = os.path.join(script_dir, 'all_fund_prices_api.csv')
 with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as price_file:
     # Modify the header for the price CSV file to include today's date
     today_str = today.strftime('%Y-%m-%d')
-    price_header = 'Fund,Full Fund Name,Today (' + today_str + '),' + ','.join([f'{i} Weeks ({date})' for i, date in enumerate(week_dates_str, start=1)]) + '\n'
+    price_header = 'Fund,Full Fund Name,Start Date (' + today_str + '),' + ','.join([f'{i} Weeks ({date})' for i, date in enumerate(week_dates_str, start=1)]) + '\n'
     price_file.write(price_header)
 
     # Write headers
