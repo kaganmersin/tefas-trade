@@ -46,9 +46,9 @@ with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
                 # Apply a conditional format to the cell range.
                 worksheet.conditional_format(1, col, len(df), col, {
                     'type': '3_color_scale',
-                    'min_color': "#a60711", # Red for lowest values
-                    'mid_color': "#e9f502", # Yellow for mid-range values
-                    'max_color': "#096900"  # Green for highest values
+                    'min_color': "#F8696B", # Red for lowest values
+                    'mid_color': "#FEE282", # Yellow for mid-range values
+                    'max_color': "#73C37C"  # Green for highest values
                 })
 
 print(f"All CSV files have been written to {output_excel_path}.")
