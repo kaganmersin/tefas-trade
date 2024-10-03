@@ -3,3 +3,8 @@ README.md
 
 path/**
 venv/**
+
+venv
+venv/
+path
+path/
