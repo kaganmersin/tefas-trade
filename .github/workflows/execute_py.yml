@@ -25,11 +25,12 @@ jobs:
           else
             echo "No requirements.txt found, skipping installation."
           fi
-
-      - name: Execute Python script
-        run: |
-          source venv/bin/activate
           python api/fetch_price_data_with_api.py
+
+    #   - name: Execute Python script
+    #     run: |
+    #       source venv/bin/activate
+    #       python api/fetch_price_data_with_api.py
 
       - name: Commit and push output files
         run: |
