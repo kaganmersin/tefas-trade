@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
+from pathlib import Path
 import os
 
 # Function to get the previous Friday's date
@@ -62,25 +63,29 @@ if today.weekday() > 4:
     today = get_previous_friday(today)
 
 # Directory of the script
-script_dir = os.path.dirname(os.path.realpath(__file__))
+script_dir = Path(__file__).parent
 
 # Path for the fund names file
-fund_names_path = os.path.join(script_dir, 'fund_names.txt')
+fund_names_path = script_dir / 'fund_names.txt'
 
 # Read fund names from fund_names.txt
-with open(fund_names_path, 'r') as file:
-    all_funds = [line.strip() for line in file]
+try:
+    with open(fund_names_path, 'r', encoding='utf-8') as file:
+        all_funds = [line.strip() for line in file]
+except FileNotFoundError:
+    print(f"Error: The file 'fund_names.txt' was not found in {script_dir}.")
+    exit(1)
 
 number_of_weeks = 74
 week_dates = [today - timedelta(weeks=week) for week in range(1, number_of_weeks + 1)]
 week_dates_str = [date.strftime('%Y-%m-%d') for date in week_dates]
 
 # Paths for the CSV files
-profit_csv_path = os.path.join(script_dir, 'all_fund_profit_percentages_api.csv')
-price_csv_path = os.path.join(script_dir, 'all_fund_prices_api.csv')
+profit_csv_path = script_dir / 'all_fund_profit_percentages_api.csv'
+price_csv_path = script_dir / 'all_fund_prices_api.csv'
 
 # Open files for writing
-with open(profit_csv_path, 'w') as profit_file, open(price_csv_path, 'w') as price_file:
+with open(profit_csv_path, 'w', encoding='utf-8') as profit_file, open(price_csv_path, 'w', encoding='utf-8') as price_file:
     # Modify the header for the price CSV file to include today's date
     today_str = today.strftime('%Y-%m-%d')
     price_header = 'Fund,Full Fund Name,Start Date (' + today_str + '),' + ','.join([f'{i} Weeks ({date})' for i, date in enumerate(week_dates_str, start=1)]) + '\n'
