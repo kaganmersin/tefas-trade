@@ -1,7 +1,8 @@
 name: Execute python app
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 6'
 
 jobs:
   execute:
@@ -23,20 +24,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: execute py script # run main.py
+      - name: execute py script
         run: python api/fetch_price_data_with_api.py
 
-      # - name: Create and set up virtual environment
-      #   run: |
-      #     python -m venv venv
-      #     source venv/bin/activate
-      #     pip install --upgrade pip
-      #     if [ -f requirements.txt ]; then
-      #       pip install -r requirements.txt
-      #     else
-      #       echo "No requirements.txt found, skipping installation."
-      #     fi
-      #     python api/fetch_price_data_with_api.py
+      - name: execute py-excel script
+        run: python api/excel_writer.py
 
       - name: Upload
         uses: actions/upload-artifact@v4
