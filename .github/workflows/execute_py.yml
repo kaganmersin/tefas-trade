@@ -37,7 +37,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DATETIME }}_UTC_${{ github.run_id }}
+          name: ${{ env.DATETIME }}_UTC+000_${{ github.run_id }}
           include-hidden-files: true
           path: |
             ${{ github.workspace }}/**/*.csv
