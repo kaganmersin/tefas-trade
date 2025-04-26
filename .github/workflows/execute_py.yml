@@ -25,16 +25,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: execute py script
-        run: python api/async.py
+      # - name: execute py script
+      #   run: python api/async.py
 
       - name: execute py-excel script
         run: python api/excel_writer.py
 
+      - name: Set DATETIME env
+        run: echo "DATETIME=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_ENV
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${GITHUB_WORKFLOW_ID}
+          name: ${{ env.DATETIME }}_${{ github.run_id }}
           include-hidden-files: true
           path: |
             ${{ github.workspace }}/**/*.csv
