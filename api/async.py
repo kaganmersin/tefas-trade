@@ -4,7 +4,6 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pathlib import Path
 import os
-from tqdm.asyncio import tqdm_asyncio
 
 # Function to get the previous Friday's date
 def get_previous_friday(date):
@@ -29,49 +28,71 @@ async def fetch_fund_data(session, fund_code, start_date, end_date, semaphore, r
         try:
             async with semaphore:
                 async with session.post(url, data=payload, timeout=20) as response:
-                    response.raise_for_status()
+                    if 400 <= response.status <= 599:
+                        text = await response.text()
+                        print(f"[HTTP {response.status}] Error for fund {fund_code} on {start_date.strftime('%Y-%m-%d')}: {text.strip()} (attempt {attempt+1})")
+                        raise aiohttp.ClientResponseError(
+                            status=response.status,
+                            request_info=response.request_info,
+                            history=response.history
+                        )
                     data = await response.json()
                     return pd.DataFrame(data['data'])
-        except Exception:
-            if attempt < retries - 1:
-                await asyncio.sleep(2 ** attempt)
-            else:
-                return pd.DataFrame()
+        except (aiohttp.ClientResponseError, aiohttp.ClientConnectorError, asyncio.TimeoutError) as e:
+            print(f"[Error] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}) attempt {attempt+1}: {str(e)}")
+        except Exception as e:
+            print(f"[Unknown Error] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}) attempt {attempt+1}: {str(e)}")
+
+        if attempt < retries - 1:
+            await asyncio.sleep(2 ** attempt)
+    print(f"[Failed] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}): All retries failed.")
+    return pd.DataFrame()
+
+# Shared counter for progress tracking
+fetched_prices_counter = 0
 
 # Async function to get single day price
-async def get_single_day_price(session, date, fund_code, semaphore):
+async def get_single_day_price(session, date, fund_code, semaphore, total_prices):
+    global fetched_prices_counter
     df = await fetch_fund_data(session, fund_code, date, date, semaphore)
     if not df.empty:
         price = df['FIYAT'].astype(float).iloc[0]
         price = f"{price:.3f}"
         full_fund_name = df['FONUNVAN'].iloc[0]
+        fetched_prices_counter += 1
+        if fetched_prices_counter % 100 == 0 or fetched_prices_counter == total_prices:
+            progress = (fetched_prices_counter / total_prices) * 100
+            print(f"Fetched {fetched_prices_counter}/{total_prices} prices ({progress:.2f}%)")
         return price, full_fund_name
     else:
         return None, None
 
 # Async function to get the most recent price
-async def get_recent_price_from_date(session, fund_code, base_date, semaphore):
+async def get_recent_price_from_date(session, fund_code, base_date, semaphore, total_prices):
     for days_back in range(3):
         date_to_check = base_date - timedelta(days=days_back)
-        price, _ = await get_single_day_price(session, date_to_check, fund_code, semaphore)
+        price, _ = await get_single_day_price(session, date_to_check, fund_code, semaphore, total_prices)
         if price is not None:
             return price
     return None
 
-async def process_fund(session, fund, today, week_dates, number_of_weeks, semaphore):
+async def process_fund(session, fund, today, week_dates, number_of_weeks, semaphore, total_prices):
     try:
         weekly_profits = []
         weekly_prices = []
         full_fund_name = ''
-        today_price = await get_recent_price_from_date(session, fund, today, semaphore)
+        today_price = await get_recent_price_from_date(session, fund, today, semaphore, total_prices)
 
-        for week, date in enumerate(week_dates, 1):
-            start_price, name = await get_single_day_price(session, date, fund, semaphore)
+        tasks = [get_single_day_price(session, date, fund, semaphore, total_prices) for date in week_dates]
+        results = await asyncio.gather(*tasks)
+
+        for week, (start_price, name) in enumerate(results, 1):
             if week == 1 and name:
                 full_fund_name = name
 
             if start_price is None:
-                start_price = await get_recent_price_from_date(session, fund, date, semaphore)
+                date = week_dates[week - 1]
+                start_price = await get_recent_price_from_date(session, fund, date, semaphore, total_prices)
 
             if start_price is not None:
                 weekly_prices.append(start_price)
@@ -116,9 +137,15 @@ async def main():
 
     semaphore = asyncio.Semaphore(5)
 
+    total_prices = len(all_funds) * number_of_weeks
+
     async with aiohttp.ClientSession() as session:
-        tasks = [process_fund(session, fund, today, week_dates, number_of_weeks, semaphore) for fund in all_funds]
-        results = await tqdm_asyncio.gather(*tasks)
+        tasks = [process_fund(session, fund, today, week_dates, number_of_weeks, semaphore, total_prices) for fund in all_funds]
+
+        results = []
+        for future in asyncio.as_completed(tasks):
+            result = await future
+            results.append(result)
 
     # Write to files
     with open(profit_csv_path, 'w', encoding='utf-8') as profit_file, open(price_csv_path, 'w', encoding='utf-8') as price_file:
@@ -132,7 +159,7 @@ async def main():
             profit_file.write(f"{fund},{full_fund_name},{','.join(weekly_profits)}\n")
             price_file.write(f"{fund},{full_fund_name},{today_price if today_price else 'None'},{','.join(weekly_prices)}\n")
 
-    print("All profit percentages and prices have been written to their respective CSV files.")
+    print(f"All profit percentages and prices have been written to their respective CSV files.")
 
 if __name__ == '__main__':
     asyncio.run(main())
