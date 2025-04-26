@@ -3,3 +3,4 @@ pandas
 aiohttp
 tqdm
 asyncio
+xlsxwriter
