@@ -3,6 +3,7 @@ name: Execute python app
 on:
   schedule:
     - cron: '0 3 * * 6'
+  workflow_dispatch:
 
 jobs:
   execute:
