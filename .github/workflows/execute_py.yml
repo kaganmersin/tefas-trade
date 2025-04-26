@@ -26,7 +26,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: execute py script
-        run: python api/fetch_price_data_with_api.py
+        run: python api/async.py
 
       - name: execute py-excel script
         run: python api/excel_writer.py
