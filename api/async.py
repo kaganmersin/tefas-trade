@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pathlib import Path
 import os
+import time
 
 # Function to get the previous Friday's date
 def get_previous_friday(date):
@@ -30,7 +31,7 @@ async def fetch_fund_data(session, fund_code, start_date, end_date, semaphore, r
                 async with session.post(url, data=payload, timeout=20) as response:
                     if 400 <= response.status <= 599:
                         text = await response.text()
-                        print(f"[HTTP {response.status}] Error for fund {fund_code} on {start_date.strftime('%Y-%m-%d')}: {text.strip()} (attempt {attempt+1})")
+                        print(f"[HTTP {response.status}] Error for fund {fund_code} on {start_date.strftime('%Y-%m-%d')}: {text.strip()} (attempt {attempt+1})", flush=True)
                         raise aiohttp.ClientResponseError(
                             status=response.status,
                             request_info=response.request_info,
@@ -39,30 +40,33 @@ async def fetch_fund_data(session, fund_code, start_date, end_date, semaphore, r
                     data = await response.json()
                     return pd.DataFrame(data['data'])
         except (aiohttp.ClientResponseError, aiohttp.ClientConnectorError, asyncio.TimeoutError) as e:
-            print(f"[Error] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}) attempt {attempt+1}: {str(e)}")
+            print(f"[Error] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}) attempt {attempt+1}: {str(e)}", flush=True)
         except Exception as e:
-            print(f"[Unknown Error] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}) attempt {attempt+1}: {str(e)}")
+            print(f"[Unknown Error] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}) attempt {attempt+1}: {str(e)}", flush=True)
 
         if attempt < retries - 1:
             await asyncio.sleep(2 ** attempt)
-    print(f"[Failed] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}): All retries failed.")
+    print(f"[Failed] Fund {fund_code} ({start_date.strftime('%Y-%m-%d')}): All retries failed.", flush=True)
     return pd.DataFrame()
 
-# Shared counter for progress tracking
+# Shared counter and timer for progress tracking
 fetched_prices_counter = 0
+start_time = time.time()
 
 # Async function to get single day price
 async def get_single_day_price(session, date, fund_code, semaphore, total_prices):
-    global fetched_prices_counter
+    global fetched_prices_counter, start_time
     df = await fetch_fund_data(session, fund_code, date, date, semaphore)
     if not df.empty:
         price = df['FIYAT'].astype(float).iloc[0]
         price = f"{price:.3f}"
         full_fund_name = df['FONUNVAN'].iloc[0]
         fetched_prices_counter += 1
-        if fetched_prices_counter % 100 == 0 or fetched_prices_counter == total_prices:
+        if fetched_prices_counter % 200 == 0 or fetched_prices_counter == total_prices:
+            elapsed = time.time() - start_time
+            elapsed_str = time.strftime("%H:%M:%S", time.gmtime(elapsed))
             progress = (fetched_prices_counter / total_prices) * 100
-            print(f"Fetched {fetched_prices_counter}/{total_prices} prices ({progress:.2f}%)")
+            print(f"Fetched {fetched_prices_counter}/{total_prices} prices ({progress:.2f}%) - {elapsed_str} elapsed", flush=True)
         return price, full_fund_name
     else:
         return None, None
@@ -123,7 +127,7 @@ async def main():
         with open(fund_names_path, 'r', encoding='utf-8') as file:
             all_funds = [line.strip() for line in file]
     except FileNotFoundError:
-        print(f"Error: The file 'fund_names.txt' was not found in {script_dir}.")
+        print(f"Error: The file 'fund_names.txt' was not found in {script_dir}.", flush=True)
         return
 
     number_of_weeks = 74
@@ -135,7 +139,7 @@ async def main():
 
     today_str = today.strftime('%Y-%m-%d')
 
-    semaphore = asyncio.Semaphore(5)
+    semaphore = asyncio.Semaphore(15)
 
     total_prices = len(all_funds) * number_of_weeks
 
@@ -159,7 +163,7 @@ async def main():
             profit_file.write(f"{fund},{full_fund_name},{','.join(weekly_profits)}\n")
             price_file.write(f"{fund},{full_fund_name},{today_price if today_price else 'None'},{','.join(weekly_prices)}\n")
 
-    print(f"All profit percentages and prices have been written to their respective CSV files.")
+    print(f"All profit percentages and prices have been written to their respective CSV files.", flush=True)
 
 if __name__ == '__main__':
     asyncio.run(main())
