@@ -121,7 +121,7 @@ async def main():
         today = get_previous_friday(today)
 
     script_dir = Path(__file__).parent
-    fund_names_path = script_dir / 'fund_names_test.txt'
+    fund_names_path = script_dir / 'fund_names.txt'
 
     try:
         with open(fund_names_path, 'r', encoding='utf-8') as file:
