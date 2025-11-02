@@ -28,6 +28,9 @@ jobs:
       - name: execute py script
         run: python api/async.py
 
+      - name: execute time analysis script
+        run: python api/time_analysis.py
+
       - name: execute py-excel script
         run: python api/excel_writer.py
 
