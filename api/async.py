@@ -134,8 +134,11 @@ async def main():
     week_dates = [today - timedelta(weeks=week) for week in range(1, number_of_weeks + 1)]
     week_dates_str = [date.strftime('%Y-%m-%d') for date in week_dates]
 
-    profit_csv_path = script_dir / 'all_fund_profit_percentages_api.csv'
-    price_csv_path = script_dir / 'all_fund_prices_api.csv'
+    # Generate timestamp for filenames
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+    profit_csv_path = script_dir / f'all_fund_profit_percentages_api_{timestamp}.csv'
+    price_csv_path = script_dir / f'all_fund_prices_api_{timestamp}.csv'
 
     today_str = today.strftime('%Y-%m-%d')
 

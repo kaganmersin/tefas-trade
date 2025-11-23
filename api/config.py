@@ -2,7 +2,7 @@
 
 # Common exclusion lists - define once, reuse multiple times
 COMMON_EXCLUSIONS = {
-    'all_special': ['ALTIN', 'GÜMÜŞ', 'MADENLER', 'MADEN'],
+    'all_special': [],
     'my_funds': ['DCB', 'GBV', 'GO6', 'HVT', 'IIE', 'IVY', 'OJK', 'PBN', 'PPN', 'PRY', 'TCA', 'TMM']
 }
 

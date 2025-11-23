@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import glob
+from datetime import datetime
 from config import COMMON_EXCLUSIONS
 
 # Directory of the script
@@ -12,8 +13,11 @@ MY_FUNDS = COMMON_EXCLUSIONS['my_funds']
 # Get all CSV files in the script's directory
 csv_files = glob.glob(os.path.join(script_dir, '*.csv'))
 
+# Generate timestamp for filename
+timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
 # Create a Pandas Excel writer using XlsxWriter as the engine
-output_excel_path = os.path.join(script_dir, 'output.xlsx')
+output_excel_path = os.path.join(script_dir, f'output_{timestamp}.xlsx')
 with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
     all_funds_df = None  # Store the all_fund_profit_percentages_api dataframe
 
@@ -26,7 +30,7 @@ with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
         sheet_name = sheet_name[:31]
 
         # Store the original dataframe for all_fund_profit_percentages_api
-        if sheet_name == 'all_fund_profit_percentages_api':
+        if sheet_name == 'all_fund_profit_percentages_api' or sheet_name.startswith('all_fund_profit_percentages'):
             all_funds_df = df.copy()
 
         # Write the DataFrame to a specific sheet in the Excel file
@@ -37,7 +41,7 @@ with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
         worksheet = writer.sheets[sheet_name]
 
         # Apply conditional formatting to all_fund_profit_percentages_api
-        if sheet_name == 'all_fund_profit_percentages_api':
+        if sheet_name == 'all_fund_profit_percentages_api' or sheet_name.startswith('all_fund_profit_percentages'):
             # Get number of columns
             num_cols = len(df.columns)
             for col in range(2, num_cols):  # Skip Fund and Full Fund Name columns

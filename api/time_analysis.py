@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Tuple, Set, Optional
+from datetime import datetime
 from config import CONFIGS
 
 def load_profit_data(file_path: Path) -> pd.DataFrame:
@@ -155,7 +156,16 @@ def find_overlapping_funds(df: pd.DataFrame, weeks: List[int], top_n: int, min_a
 def main():
     # Get script directory
     script_dir = Path(__file__).parent
-    input_file = script_dir / 'all_fund_profit_percentages_api.csv'
+
+    # Find the most recent all_fund_profit_percentages_api file
+    profit_files = list(script_dir.glob('all_fund_profit_percentages_api*.csv'))
+    if not profit_files:
+        print("Error: No all_fund_profit_percentages_api CSV file found in the directory.")
+        return
+
+    # Get the most recent file by modification time
+    input_file = max(profit_files, key=lambda p: p.stat().st_mtime)
+    print(f"Using input file: {input_file.name}")
 
     # Load data
     print("Loading profit data...")
@@ -164,6 +174,9 @@ def main():
     if df is None or df.empty:
         print("Failed to load data. Exiting.")
         return
+
+    # Generate timestamp for filenames
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
     # Process each configuration
     for config_name, config in CONFIGS.items():
@@ -197,8 +210,12 @@ def main():
             print(f"  No qualifying funds found for {config_name}")
             continue
 
+        # Add timestamp to output filename
+        output_path = Path(output_file)
+        output_filename = f"{output_path.stem}_{timestamp}{output_path.suffix}"
+        output_path = script_dir / output_filename
+
         # Save to CSV
-        output_path = script_dir / output_file
         result_df.to_csv(output_path, index=False, encoding='utf-8')
         print(f"  Saved {len(result_df)} funds to {output_path.name}")
 

@@ -35,7 +35,7 @@ jobs:
         run: python api/excel_writer.py
 
       - name: Set DATETIME env
-        run: echo "DATETIME=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_ENV
+        run: echo "DATETIME=$(TZ='Etc/GMT-3' date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_ENV
 
       - name: Upload
         uses: actions/upload-artifact@v4
