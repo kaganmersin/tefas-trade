@@ -44,4 +44,4 @@ jobs:
           include-hidden-files: true
           path: |
             ${{ github.workspace }}/**/*.csv
-            ${{ github.workspace }}/**/output.xlsx
+            ${{ github.workspace }}/**/*.xlsx
